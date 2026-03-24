@@ -72,11 +72,15 @@ def main() -> None:
         )
     has_health_screening = st.checkbox("Did a Health Screening this year", value=False)
 
-    period_label = st.selectbox(
-        "Display reward period",
-        options=["Daily", "Weekly", "Yearly"],
-        index=2,
-    )
+    st.subheader("Rewards")
+    period_cols = st.columns([1, 4])
+    with period_cols[0]:
+        period_label = st.selectbox(
+            "Reward Period",
+            options=["Daily", "Weekly", "Yearly"],
+            index=2,
+        )
+
     period_key = PERIOD_KEY_MAP[period_label]
 
     inputs = HealthInputs(
@@ -88,7 +92,6 @@ def main() -> None:
     result = build_health_reward_objects(inputs)
     reward_table = result["rewards_by_period"][period_key]
 
-    st.subheader("Rewards")
     cols = st.columns(3)
     ordered_categories = ["activesg", "retail_vouchers", "health_insurance"]
 
@@ -97,7 +100,10 @@ def main() -> None:
         with col:
             st.subheader(info["title"])
             st.caption(info["description"])
-            st.markdown(f"## {info['icon']}")
+            st.markdown(
+                f"<div style='text-align:center; font-size:4.5rem; line-height:1.2;'>{info['icon']}</div>",
+                unsafe_allow_html=True,
+            )
             value = _get_value_for_category(reward_table, category)
             st.metric(label=f"{period_label} Dollar Value", value=f"${value:,.2f}")
 
