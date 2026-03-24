@@ -136,7 +136,7 @@ def main() -> None:
     st.subheader("How It Works")
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("#### � Sleep")
+        st.markdown("#### 🛌 Sleep")
         st.markdown(
             "Track your sleep with a compatible device to earn points for consistent 7+ hours of rest."
         )
@@ -200,7 +200,7 @@ def main() -> None:
             {"Category": "Screening", "Range": "Completed this year", "Points": "3000", "Frequency": "Yearly"},
         ]
     )
-    st.caption("Default conversion reference: 150 points = $1.")
+    st.caption("Default conversion reference: 150 points = $1, 2x for insurance, 3x for fitness rewards")
 
 
 if __name__ == "__main__":
