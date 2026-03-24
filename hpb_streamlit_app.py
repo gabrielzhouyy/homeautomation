@@ -75,6 +75,42 @@ def main() -> None:
         )
     has_health_screening = st.checkbox("Did a Health Screening this year", value=False)
 
+    st.subheader("Choose your Reward")
+    period_cols = st.columns([1, 4])
+    with period_cols[0]:
+        period_label = st.selectbox(
+            "Reward Period",
+            options=["Daily", "Weekly", "Yearly"],
+            index=2,
+        )
+
+    period_key = PERIOD_KEY_MAP[period_label]
+
+    inputs = HealthInputs(
+        daily_steps=int(daily_steps),
+        daily_sleep_hours=float(daily_sleep_hours),
+        weekly_exercise_minutes=int(weekly_exercise_minutes),
+        has_health_screening=has_health_screening,
+    )
+    result = build_health_reward_objects(inputs)
+    reward_table = result["rewards_by_period"][period_key]
+
+    cols = st.columns(3)
+    ordered_categories = ["activesg", "retail_vouchers", "health_insurance"]
+
+    for col, category in zip(cols, ordered_categories):
+        info = CARD_CONFIG[category]
+        with col:
+            with st.container(border=True):
+                st.markdown(f"### **{info['title']}**")
+                st.markdown(f"**{info['description']}**")
+                st.markdown(
+                    f"<div style='text-align:center; font-size:4.5rem; line-height:1.2;'>{info['icon']}</div>",
+                    unsafe_allow_html=True,
+                )
+                value = _get_value_for_category(reward_table, category)
+                st.metric(label=f"{period_label} Dollar Value", value=f"${value:,.2f}")
+
     st.subheader("Tips")
     st.caption("Quick reference for Healthy 365 points rules.")
     st.table(
@@ -119,46 +155,6 @@ def main() -> None:
         ]
     )
     st.caption("Default conversion reference: 150 points = $1.")
-
-    st.subheader("Choose your Reward")
-    period_cols = st.columns([1, 4])
-    with period_cols[0]:
-        period_label = st.selectbox(
-            "Reward Period",
-            options=["Daily", "Weekly", "Yearly"],
-            index=2,
-        )
-
-    period_key = PERIOD_KEY_MAP[period_label]
-
-    inputs = HealthInputs(
-        daily_steps=int(daily_steps),
-        daily_sleep_hours=float(daily_sleep_hours),
-        weekly_exercise_minutes=int(weekly_exercise_minutes),
-        has_health_screening=has_health_screening,
-    )
-    result = build_health_reward_objects(inputs)
-    reward_table = result["rewards_by_period"][period_key]
-
-    cols = st.columns(3)
-    ordered_categories = ["activesg", "retail_vouchers", "health_insurance"]
-
-    for col, category in zip(cols, ordered_categories):
-        info = CARD_CONFIG[category]
-        with col:
-            st.markdown(
-                "<div style='border:2px solid #d9d9d9; border-radius:14px; padding:16px; min-height:330px;'>",
-                unsafe_allow_html=True,
-            )
-            st.markdown(f"### **{info['title']}**")
-            st.markdown(f"**{info['description']}**")
-            st.markdown(
-                f"<div style='text-align:center; font-size:4.5rem; line-height:1.2;'>{info['icon']}</div>",
-                unsafe_allow_html=True,
-            )
-            value = _get_value_for_category(reward_table, category)
-            st.metric(label=f"{period_label} Dollar Value", value=f"${value:,.2f}")
-            st.markdown("</div>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
