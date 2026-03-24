@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from health_rewards_data import HealthInputs, build_health_reward_objects
+from hpb_data import HealthInputs, build_health_reward_objects
 
 
 CARD_CONFIG = {
