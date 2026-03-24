@@ -10,17 +10,26 @@ from hpb_data import HealthInputs, build_health_reward_objects
 
 CARD_CONFIG = {
     "activesg": {
-        "title": "Gym Memberships, Facility Bookings",
-        "image_url": "https://images.pexels.com/photos/416717/pexels-photo-416717.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "title": "ActiveSG",
+        "description": "Gym memberships, facility bookings, and fitness classes.",
+        "icon": "🏋️",
     },
     "retail_vouchers": {
-        "title": "Retail Vouchers, Boba, Commute Credits",
-        "image_url": "https://images.pexels.com/photos/264636/pexels-photo-264636.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "title": "Retail",
+        "description": "Retail vouchers, boba, commute credits.",
+        "icon": "🛍️",
     },
     "health_insurance": {
         "title": "Health Insurance",
-        "image_url": "https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "description": "Subsidize health insurance cost.",
+        "icon": "🩺",
     },
+}
+
+PERIOD_KEY_MAP = {
+    "Daily": "day",
+    "Weekly": "week",
+    "Yearly": "year",
 }
 
 
@@ -34,8 +43,9 @@ def main() -> None:
     st.title("Healthy 365 Rewards Explorer")
     st.write("Adjust your weekly habits to estimate reward dollar value by period.")
 
-    with st.sidebar:
-        st.header("Inputs")
+    st.subheader("Inputs")
+    input_cols = st.columns(3)
+    with input_cols[0]:
         daily_steps = st.number_input(
             "Daily step count",
             min_value=0,
@@ -43,6 +53,7 @@ def main() -> None:
             value=7500,
             step=500,
         )
+    with input_cols[1]:
         daily_sleep_hours = st.number_input(
             "Sleep (hours)",
             min_value=0.0,
@@ -51,6 +62,7 @@ def main() -> None:
             step=0.1,
             format="%.1f",
         )
+    with input_cols[2]:
         weekly_exercise_minutes = st.number_input(
             "Exercise minutes per week",
             min_value=0,
@@ -58,23 +70,25 @@ def main() -> None:
             value=90,
             step=10,
         )
+    has_health_screening = st.checkbox("Did a Health Screening this year", value=False)
 
     period_label = st.selectbox(
         "Display reward period",
         options=["Daily", "Weekly", "Yearly"],
         index=2,
     )
-    period_key = period_label.lower().replace("ly", "")
+    period_key = PERIOD_KEY_MAP[period_label]
 
     inputs = HealthInputs(
         daily_steps=int(daily_steps),
         daily_sleep_hours=float(daily_sleep_hours),
         weekly_exercise_minutes=int(weekly_exercise_minutes),
-        has_health_screening=False,
+        has_health_screening=has_health_screening,
     )
     result = build_health_reward_objects(inputs)
     reward_table = result["rewards_by_period"][period_key]
 
+    st.subheader("Rewards")
     cols = st.columns(3)
     ordered_categories = ["activesg", "retail_vouchers", "health_insurance"]
 
@@ -82,7 +96,8 @@ def main() -> None:
         info = CARD_CONFIG[category]
         with col:
             st.subheader(info["title"])
-            st.image(info["image_url"], use_container_width=True)
+            st.caption(info["description"])
+            st.markdown(f"## {info['icon']}")
             value = _get_value_for_category(reward_table, category)
             st.metric(label=f"{period_label} Dollar Value", value=f"${value:,.2f}")
 
