@@ -10,7 +10,7 @@ from hpb_data import HealthInputs, build_health_reward_objects
 
 CARD_CONFIG = {
     "activesg": {
-        "title": "ActiveSG",
+        "title": "Fitness",
         "description": "Gym memberships, facility bookings, and fitness classes.",
         "icon": "🏋️",
     },
@@ -200,7 +200,7 @@ def main() -> None:
             {"Category": "Screening", "Range": "Completed this year", "Points": "3000", "Frequency": "Yearly"},
         ]
     )
-    st.caption("Default conversion reference: 150 points = $1, 2x for insurance, 3x for fitness rewards")
+    st.caption("Rewards reference: 150 points = $1 retail | $2 for insurance | $3 for fitness rewards")
 
 
 if __name__ == "__main__":
