@@ -122,20 +122,38 @@ def main() -> None:
     for col, category in zip(cols, ordered_categories):
         info = CARD_CONFIG[category]
         with col:
-            with st.container(border=True):
-                st.markdown(
-                    f"<div style='min-height:300px; display:flex; flex-direction:column; justify-content:space-between;'>",
-                    unsafe_allow_html=True,
-                )
-                st.markdown(f"### **{info['title']}**")
-                st.markdown(f"**{info['description']}**")
-                st.markdown(
-                    f"<div style='text-align:center; font-size:4.5rem; line-height:1.2; flex-grow:1; display:flex; align-items:center; justify-content:center;'>{info['icon']}</div>",
-                    unsafe_allow_html=True,
-                )
-                value = _get_value_for_category(reward_table, category)
-                st.metric(label=f"{period_label} Dollar Value", value=f"${value:,.2f}")
-                st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown(f"### **{info['title']}**")
+            st.markdown(f"**{info['description']}**")
+            st.markdown(
+                f"<div style='text-align:center; font-size:4.5rem; line-height:1.2;'>{info['icon']}</div>",
+                unsafe_allow_html=True,
+            )
+            value = _get_value_for_category(reward_table, category)
+            st.metric(label=f"{period_label} Dollar Value", value=f"${value:,.2f}")
+
+    st.divider()
+
+    st.subheader("How It Works")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("#### � Sleep")
+        st.markdown(
+            "Track your sleep with a compatible device to earn points for consistent 7+ hours of rest."
+        )
+    with col2:
+        st.markdown("#### 🚶 Move")
+        st.markdown(
+            "Sync your fitness tracker or phone. Earn points for hitting step milestones "
+            "(e.g., 5,000 to 10,000 steps) and for **MVPA**—getting your heart rate up for at least 10 minutes."
+        )
+    with col3:
+        st.markdown("#### 🍽️ Eat")
+        st.markdown(
+            "Buy a meal or drink with the **Healthier Choice** symbol (lower sugar, whole grains, etc.). "
+            "The merchant gives you a QR code. Scan it with the app to get instant points, or purchase from the in-app marketplace to earn points for healthy groceries."
+        )
+
+    st.divider()
 
     st.subheader("Points Calculation")
     st.caption("Quick reference for Healthy 365 points rules.")
