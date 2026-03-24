@@ -41,7 +41,10 @@ def _get_value_for_category(reward_table, category: str) -> float:
 def main() -> None:
     st.set_page_config(page_title="Healthy 365 Rewards Explorer", layout="wide")
     st.title("Healthy 365 Rewards Explorer")
-    st.write("Adjust your weekly habits to estimate reward dollar value by period.")
+    st.markdown(
+        "Adjust your weekly habits to estimate reward dollar value by period. "
+        "[Get a free fitness tracker here.](https://www.healthhub.sg/programmes/healthyliving/fitnesstracker/features)"
+    )
 
     st.subheader("Inputs")
     input_cols = st.columns(3)
@@ -72,7 +75,52 @@ def main() -> None:
         )
     has_health_screening = st.checkbox("Did a Health Screening this year", value=False)
 
-    st.subheader("Rewards")
+    st.subheader("Tips")
+    st.caption("Quick reference for Healthy 365 points rules.")
+    st.table(
+        [
+            {"Category": "Steps", "Range": "5,000 - 9,999 steps", "Points": "5", "Frequency": "Daily"},
+            {"Category": "Steps", "Range": "10,000 - 14,999 steps", "Points": "10", "Frequency": "Daily"},
+            {"Category": "Steps", "Range": "15,000+ steps", "Points": "15", "Frequency": "Daily (Max)"},
+            {"Category": "Sleep", "Range": "6.0 - 6.4 hours", "Points": "5", "Frequency": "Daily"},
+            {"Category": "Sleep", "Range": "6.5 - 6.9 hours", "Points": "10", "Frequency": "Daily"},
+            {"Category": "Sleep", "Range": "7.0+ hours", "Points": "15", "Frequency": "Daily (Max)"},
+            {
+                "Category": "Exercise (Moderate to Vigorous)",
+                "Range": "30 - 59 minutes",
+                "Points": "20",
+                "Frequency": "Weekly",
+            },
+            {
+                "Category": "Exercise (Moderate to Vigorous)",
+                "Range": "60 - 89 minutes",
+                "Points": "40",
+                "Frequency": "Weekly",
+            },
+            {
+                "Category": "Exercise (Moderate to Vigorous)",
+                "Range": "90 - 119 minutes",
+                "Points": "60",
+                "Frequency": "Weekly",
+            },
+            {
+                "Category": "Exercise (Moderate to Vigorous)",
+                "Range": "120 - 149 minutes",
+                "Points": "80",
+                "Frequency": "Weekly",
+            },
+            {
+                "Category": "Exercise (Moderate to Vigorous)",
+                "Range": "150+ minutes",
+                "Points": "100",
+                "Frequency": "Weekly (Max)",
+            },
+            {"Category": "Screening", "Range": "Completed this year", "Points": "3000", "Frequency": "Yearly"},
+        ]
+    )
+    st.caption("Default conversion reference: 150 points = $1.")
+
+    st.subheader("Choose your Reward")
     period_cols = st.columns([1, 4])
     with period_cols[0]:
         period_label = st.selectbox(
@@ -98,14 +146,19 @@ def main() -> None:
     for col, category in zip(cols, ordered_categories):
         info = CARD_CONFIG[category]
         with col:
-            st.subheader(info["title"])
-            st.caption(info["description"])
+            st.markdown(
+                "<div style='border:2px solid #d9d9d9; border-radius:14px; padding:16px; min-height:330px;'>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(f"### **{info['title']}**")
+            st.markdown(f"**{info['description']}**")
             st.markdown(
                 f"<div style='text-align:center; font-size:4.5rem; line-height:1.2;'>{info['icon']}</div>",
                 unsafe_allow_html=True,
             )
             value = _get_value_for_category(reward_table, category)
             st.metric(label=f"{period_label} Dollar Value", value=f"${value:,.2f}")
+            st.markdown("</div>", unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
