@@ -19,6 +19,8 @@ class HealthInputs:
 	daily_sleep_hours: float
 	weekly_exercise_minutes: int
 	has_health_screening: bool
+	weekly_food_purchases: int = 0
+	weekly_grocery_purchases: int = 0
 
 
 # Threshold tables are sorted from highest threshold to lowest threshold.
@@ -43,6 +45,16 @@ EXERCISE_RULES = pd.DataFrame(
 	}
 )
 
+FOOD_PURCHASES_RULES = {
+	"points_per_item": 10,
+	"max_items_per_week": 15,
+}
+
+GROCERY_PURCHASES_RULES = {
+	"points_per_item": 5,
+	"max_items_per_week": 15,
+}
+
 REWARD_RULES = pd.DataFrame(
 	{
 		"category": [
@@ -64,6 +76,12 @@ def _points_from_threshold(value: float, rule_table: pd.DataFrame) -> int:
 	"""Return points for the highest threshold satisfied by value."""
 	eligible = rule_table.loc[value >= rule_table["threshold"], "points"]
 	return int(eligible.iloc[0]) if not eligible.empty else 0
+
+
+def _points_from_purchases(items_purchased: int, rule_dict: Dict[str, int]) -> int:
+	"""Calculate points from purchases with a per-item rate and weekly cap."""
+	capped_items = min(items_purchased, rule_dict["max_items_per_week"])
+	return capped_items * rule_dict["points_per_item"]
 
 
 def _build_reward_table(total_points: float) -> pd.DataFrame:
@@ -88,11 +106,13 @@ def aggregate_points_weekly(inputs: HealthInputs) -> Dict[str, float]:
 	)
 	weekly_habit_points = daily_habit_points * DAYS_PER_WEEK
 	weekly_exercise_points = _points_from_threshold(inputs.weekly_exercise_minutes, EXERCISE_RULES)
+	weekly_food_points = _points_from_purchases(inputs.weekly_food_purchases, FOOD_PURCHASES_RULES)
+	weekly_grocery_points = _points_from_purchases(inputs.weekly_grocery_purchases, GROCERY_PURCHASES_RULES)
 	weekly_screening_attribution = (
 		YEARLY_SCREENING_POINTS / WEEKS_PER_YEAR if inputs.has_health_screening else 0.0
 	)
 
-	weekly_points = weekly_habit_points + weekly_exercise_points + weekly_screening_attribution
+	weekly_points = weekly_habit_points + weekly_exercise_points + weekly_food_points + weekly_grocery_points + weekly_screening_attribution
 	daily_points = weekly_points / DAYS_PER_WEEK
 	yearly_points = weekly_points * WEEKS_PER_YEAR
 

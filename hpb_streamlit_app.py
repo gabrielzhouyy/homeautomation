@@ -40,7 +40,7 @@ def _get_value_for_category(reward_table, category: str) -> float:
 
 def main() -> None:
     st.set_page_config(page_title="Healthy 365 Rewards Explorer", layout="wide")
-    st.title("Healthy 365 Rewards Explorer")
+    st.title("Singapore Pays you to Sleep")
     st.markdown(
         "Adjust your weekly habits to estimate reward dollar value by period. "
         "[Get a free fitness tracker here.](https://www.healthhub.sg/programmes/healthyliving/fitnesstracker/features)"
@@ -49,14 +49,6 @@ def main() -> None:
     st.subheader("Inputs")
     input_cols = st.columns(3)
     with input_cols[0]:
-        daily_steps = st.number_input(
-            "Daily step count",
-            min_value=0,
-            max_value=50000,
-            value=7500,
-            step=500,
-        )
-    with input_cols[1]:
         daily_sleep_hours = st.number_input(
             "Sleep (hours)",
             min_value=0.0,
@@ -65,7 +57,7 @@ def main() -> None:
             step=0.1,
             format="%.1f",
         )
-    with input_cols[2]:
+    with input_cols[1]:
         weekly_exercise_minutes = st.number_input(
             "Exercise minutes per week",
             min_value=0,
@@ -73,6 +65,33 @@ def main() -> None:
             value=90,
             step=10,
         )
+    with input_cols[2]:
+        daily_steps = st.number_input(
+            "Daily step count",
+            min_value=0,
+            max_value=50000,
+            value=7500,
+            step=500,
+        )
+    
+    purchase_cols = st.columns(3)
+    with purchase_cols[0]:
+        weekly_food_purchases = st.number_input(
+            "Weekly Healthapp Food purchases",
+            min_value=0,
+            max_value=100,
+            value=0,
+            step=1,
+        )
+    with purchase_cols[1]:
+        weekly_grocery_purchases = st.number_input(
+            "Weekly Healthapp Grocery purchases",
+            min_value=0,
+            max_value=100,
+            value=0,
+            step=1,
+        )
+    
     has_health_screening = st.checkbox("Did a Health Screening this year", value=False)
 
     st.subheader("Choose your Reward")
@@ -91,6 +110,8 @@ def main() -> None:
         daily_sleep_hours=float(daily_sleep_hours),
         weekly_exercise_minutes=int(weekly_exercise_minutes),
         has_health_screening=has_health_screening,
+        weekly_food_purchases=int(weekly_food_purchases),
+        weekly_grocery_purchases=int(weekly_grocery_purchases),
     )
     result = build_health_reward_objects(inputs)
     reward_table = result["rewards_by_period"][period_key]
@@ -102,16 +123,21 @@ def main() -> None:
         info = CARD_CONFIG[category]
         with col:
             with st.container(border=True):
+                st.markdown(
+                    f"<div style='min-height:300px; display:flex; flex-direction:column; justify-content:space-between;'>",
+                    unsafe_allow_html=True,
+                )
                 st.markdown(f"### **{info['title']}**")
                 st.markdown(f"**{info['description']}**")
                 st.markdown(
-                    f"<div style='text-align:center; font-size:4.5rem; line-height:1.2;'>{info['icon']}</div>",
+                    f"<div style='text-align:center; font-size:4.5rem; line-height:1.2; flex-grow:1; display:flex; align-items:center; justify-content:center;'>{info['icon']}</div>",
                     unsafe_allow_html=True,
                 )
                 value = _get_value_for_category(reward_table, category)
                 st.metric(label=f"{period_label} Dollar Value", value=f"${value:,.2f}")
+                st.markdown("</div>", unsafe_allow_html=True)
 
-    st.subheader("Tips")
+    st.subheader("Points Calculation")
     st.caption("Quick reference for Healthy 365 points rules.")
     st.table(
         [
@@ -151,6 +177,8 @@ def main() -> None:
                 "Points": "100",
                 "Frequency": "Weekly (Max)",
             },
+            {"Category": "Healthapp Food Purchases", "Range": "1 - 15 items", "Points": "10 per item", "Frequency": "Weekly"},
+            {"Category": "Healthapp Grocery Purchases", "Range": "1 - 15 items", "Points": "5 per item", "Frequency": "Weekly"},
             {"Category": "Screening", "Range": "Completed this year", "Points": "3000", "Frequency": "Yearly"},
         ]
     )
