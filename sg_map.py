@@ -101,7 +101,11 @@ ctrl_col, map_col = st.columns([1, 2], gap="large")
 with ctrl_col:
     st.subheader("Controls")
 
-    city_input = st.text_input("Target city", value="London", key="city_input")
+    if "target_coords" not in st.session_state:
+        st.session_state["target_coords"] = (37.5483, -121.9886)
+        st.session_state["target_label"] = "Fremont"
+
+    city_input = st.text_input("Target city", value="Fremont", key="city_input")
 
     if st.button("Geocode & Center", type="primary"):
         with st.spinner(f"Looking up {city_input}…"):
