@@ -53,39 +53,17 @@ def geocode_city(city_name: str):
     return None
 
 
-def transform_geometry(sg_geom, sg_center_latlon, target_latlon, rotation_deg, scale_factor):
-    """
-    Translate, scale, and rotate Singapore geometry onto *target_latlon*.
-
-    Coordinate system note: shapely uses (x=lon, y=lat).
-
-    Latitude correction scales the longitude span so 1 degree of longitude
-    at the target latitude represents the same physical distance as it did
-    at Singapore's latitude (Mercator-consistent overlay).
-    """
+def transform_geometry(sg_geom, sg_center_latlon, target_latlon, rotation_deg):
     sg_lat, sg_lon = sg_center_latlon
     tgt_lat, tgt_lon = target_latlon
 
-    # Guard against poles (cos → 0)
     cos_sg = math.cos(math.radians(sg_lat))
     cos_tgt = math.cos(math.radians(max(-89.9, min(89.9, tgt_lat))))
     lat_correction = cos_sg / cos_tgt if cos_tgt != 0 else 1.0
 
-    # 1. Center at origin
     centered = translate(sg_geom, xoff=-sg_lon, yoff=-sg_lat)
-
-    # 2. Scale (and correct longitude span for target latitude)
-    scaled = scale(
-        centered,
-        xfact=scale_factor * lat_correction,
-        yfact=scale_factor,
-        origin=(0, 0),
-    )
-
-    # 3. Rotate around origin
-    rotated = rotate(scaled, rotation_deg, origin=(0, 0), use_radians=False)
-
-    # 4. Translate to target
+    corrected = scale(centered, xfact=lat_correction, yfact=1.0, origin=(0, 0))
+    rotated = rotate(corrected, rotation_deg, origin=(0, 0), use_radians=False)
     return translate(rotated, xoff=tgt_lon, yoff=tgt_lat)
 
 
@@ -133,9 +111,13 @@ with ctrl_col:
             st.success(f"Found: {result[0]:.4f}°, {result[1]:.4f}°")
 
     st.markdown("---")
-    rotation = st.slider("Rotation (°)", min_value=-180, max_value=180, value=0, step=1)
-    scale_factor = st.slider("Scale", min_value=0.5, max_value=8.0, value=1.0, step=0.1,
-                             help="1× = true size. Increase to exaggerate for comparison.")
+    rot_col, btn_col = st.columns([3, 1])
+    with rot_col:
+        rotation = st.slider("Rotation (°)", min_value=-180, max_value=180, value=0, step=1, key="rotation_slider")
+    with btn_col:
+        st.markdown("<div style='padding-top:28px'>", unsafe_allow_html=True)
+        st.button("↺ 0°", on_click=lambda: st.session_state.pop("rotation_slider", None))
+        st.markdown("</div>", unsafe_allow_html=True)
 
     if "target_coords" in st.session_state:
         tgt_lat, tgt_lon = st.session_state["target_coords"]
@@ -143,7 +125,7 @@ with ctrl_col:
         st.caption(
             f"**{st.session_state.get('target_label', 'Target')}**  \n"
             f"{tgt_lat:.4f}°N, {tgt_lon:.4f}°E  \n"
-            f"Rotation: {rotation}° | Scale: {scale_factor}×"
+            f"Rotation: {rotation}°"
         )
 
 with map_col:
@@ -161,7 +143,7 @@ with map_col:
         sg_center = (centroid.y, centroid.x)  # (lat, lon)
 
         transformed = transform_geometry(
-            sg_geom, sg_center, (tgt_lat, tgt_lon), rotation, scale_factor
+            sg_geom, sg_center, (tgt_lat, tgt_lon), rotation
         )
 
         m = folium.Map(
