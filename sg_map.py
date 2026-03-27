@@ -11,7 +11,7 @@ import streamlit as st
 from folium.plugins import Geocoder
 from geopy.geocoders import Nominatim
 from shapely.affinity import rotate, scale, translate
-from shapely.geometry import MultiPolygon, shape
+from shapely.geometry import MultiPolygon, Polygon, shape
 from streamlit_folium import st_folium
 
 GEOJSON_URLS = [
@@ -37,7 +37,10 @@ def fetch_sg_geometry():
             else:
                 geom_dict = data
             sg_shape = shape(geom_dict)
-            return sg_shape.simplify(0.001, preserve_topology=True)
+            simplified = sg_shape.simplify(0.001, preserve_topology=True)
+            if isinstance(simplified, MultiPolygon):
+                simplified = max(simplified.geoms, key=lambda p: p.area)
+            return simplified
         except Exception as e:
             last_err = e
             continue
