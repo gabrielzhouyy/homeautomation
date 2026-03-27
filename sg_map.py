@@ -83,7 +83,7 @@ def add_geom_to_map(geom, folium_map, color="#EF4444", fill_opacity=0.35):
             fill=True,
             fill_color=color,
             fill_opacity=fill_opacity,
-            tooltip="Singapore (to scale)",
+            tooltip=None,
         ).add_to(folium_map)
 
 
