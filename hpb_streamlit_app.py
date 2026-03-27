@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import streamlit as st
 
 from hpb_data import HealthInputs, build_health_reward_objects
@@ -205,6 +207,6 @@ def hpb_page() -> None:
 st.set_page_config(page_title="Healthy 365 Rewards Explorer", layout="wide")
 pg = st.navigation([
     st.Page(hpb_page, title="HPB Sleep", icon="🛌"),
-    st.Page("sg_map.py", title="SGMap", icon="🗺️"),
+    st.Page(Path(__file__).parent / "sg_map.py", title="SGMap", icon="🗺️"),
 ])
 pg.run()
