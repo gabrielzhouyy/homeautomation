@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Streamlit app for Healthy 365 reward value exploration."""
+"""Entry point — Healthy 365 Rewards Explorer + SGMap."""
 
 from __future__ import annotations
 
@@ -38,8 +38,7 @@ def _get_value_for_category(reward_table, category: str) -> float:
     return float(matches.iloc[0]) if not matches.empty else 0.0
 
 
-def main() -> None:
-    st.set_page_config(page_title="Healthy 365 Rewards Explorer", layout="wide")
+def hpb_page() -> None:
     st.title("Singapore Pays you to Sleep")
     st.markdown(
         "Adjust your weekly habits to estimate reward dollar value by period. "
@@ -203,5 +202,9 @@ def main() -> None:
     st.caption("Rewards reference: 150 points = $1 retail | $2 for insurance | $3 for fitness rewards")
 
 
-if __name__ == "__main__":
-    main()
+st.set_page_config(page_title="Healthy 365 Rewards Explorer", layout="wide")
+pg = st.navigation([
+    st.Page(hpb_page, title="HPB Sleep", icon="🛌"),
+    st.Page("sg_map.py", title="SGMap", icon="🗺️"),
+])
+pg.run()
