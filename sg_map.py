@@ -166,4 +166,12 @@ with map_col:
             icon=folium.Icon(color="red", icon="map-marker", prefix="fa"),
         ).add_to(m)
 
-        st_folium(m, width=None, height=550, returned_objects=[])
+        map_data = st_folium(m, width=None, height=550, returned_objects=["last_clicked"])
+
+        if map_data and map_data.get("last_clicked"):
+            click = map_data["last_clicked"]
+            new_coords = (click["lat"], click["lng"])
+            if new_coords != st.session_state.get("target_coords"):
+                st.session_state["target_coords"] = new_coords
+                st.session_state["target_label"] = f"{click['lat']:.4f}°, {click['lng']:.4f}°"
+                st.rerun()
