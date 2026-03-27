@@ -14,26 +14,34 @@ from shapely.affinity import rotate, scale, translate
 from shapely.geometry import MultiPolygon, shape
 from streamlit_folium import st_folium
 
-GEOJSON_URL = (
-    "https://raw.githubusercontent.com/cheeaun/singapore-boundary"
-    "/master/singapore.geojson"
-)
+GEOJSON_URLS = [
+    "https://raw.githubusercontent.com/cheeaun/singapore-boundary/master/singapore.geojson",
+    "https://raw.githubusercontent.com/cheeaun/singapore-boundary/main/singapore.geojson",
+    "https://raw.githubusercontent.com/yinshanyang/singapore/master/maps/0-country.geojson",
+]
 
 
 @st.cache_data(show_spinner="Loading Singapore boundary…")
 def fetch_sg_geometry():
-    """Fetch and simplify the Singapore GeoJSON boundary."""
-    resp = requests.get(GEOJSON_URL, timeout=15)
-    resp.raise_for_status()
-    data = resp.json()
-    if data["type"] == "FeatureCollection":
-        geom_dict = data["features"][0]["geometry"]
-    elif data["type"] == "Feature":
-        geom_dict = data["geometry"]
-    else:
-        geom_dict = data
-    sg_shape = shape(geom_dict)
-    return sg_shape.simplify(0.001, preserve_topology=True)
+    """Fetch and simplify the Singapore GeoJSON boundary, trying fallback URLs."""
+    last_err = None
+    for url in GEOJSON_URLS:
+        try:
+            resp = requests.get(url, timeout=15)
+            resp.raise_for_status()
+            data = resp.json()
+            if data["type"] == "FeatureCollection":
+                geom_dict = data["features"][0]["geometry"]
+            elif data["type"] == "Feature":
+                geom_dict = data["geometry"]
+            else:
+                geom_dict = data
+            sg_shape = shape(geom_dict)
+            return sg_shape.simplify(0.001, preserve_topology=True)
+        except Exception as e:
+            last_err = e
+            continue
+    raise RuntimeError(f"Could not fetch Singapore boundary from any source. Last error: {last_err}")
 
 
 def geocode_city(city_name: str):
@@ -144,7 +152,11 @@ with map_col:
     else:
         tgt_lat, tgt_lon = st.session_state["target_coords"]
 
-        sg_geom = fetch_sg_geometry()
+        try:
+            sg_geom = fetch_sg_geometry()
+        except RuntimeError as e:
+            st.error(str(e))
+            st.stop()
         centroid = sg_geom.centroid
         sg_center = (centroid.y, centroid.x)  # (lat, lon)
 
