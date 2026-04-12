@@ -89,7 +89,7 @@ def add_geom_to_map(geom, folium_map, color="#EF4444", fill_opacity=0.35):
 
 # ── Page content ──────────────────────────────────────────────────────────────
 
-st.title("SGMap — Singapore at Scale")
+st.title("Fun Fact - Singapore is smaller than Alameda County")
 st.markdown(
     "See how big Singapore really is by overlaying its outline on any city in the world."
 )
