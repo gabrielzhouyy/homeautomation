@@ -41,9 +41,9 @@ def _get_value_for_category(reward_table, category: str) -> float:
 
 
 def hpb_page() -> None:
-    st.title("Singapore Pays you to Sleep")
+    st.title("How much will Singapore Pay you to Sleep?")
     st.markdown(
-        "Adjust your weekly habits to estimate reward dollar value by period. "
+        "Adjust your weekly habits to estimate payment value. "
         "[Get a free fitness tracker here.](https://www.healthhub.sg/programmes/healthyliving/fitnesstracker/features)"
     )
 
