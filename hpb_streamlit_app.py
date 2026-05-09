@@ -81,7 +81,7 @@ def hpb_page() -> None:
             "Weekly Healthapp Food purchases",
             min_value=0,
             max_value=100,
-            value=0,
+            value=10,
             step=1,
         )
     with purchase_cols[1]:
@@ -89,7 +89,7 @@ def hpb_page() -> None:
             "Weekly Healthapp Grocery purchases",
             min_value=0,
             max_value=100,
-            value=0,
+            value=10,
             step=1,
         )
     
