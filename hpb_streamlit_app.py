@@ -63,7 +63,7 @@ def hpb_page() -> None:
             "Exercise minutes per week",
             min_value=0,
             max_value=2000,
-            value=90,
+            value=150,
             step=10,
         )
     with input_cols[2]:
@@ -93,7 +93,7 @@ def hpb_page() -> None:
             step=1,
         )
     
-    has_health_screening = st.checkbox("Did a Health Screening this year", value=False)
+    has_health_screening = st.checkbox("Did a Health Screening this year", value=True)
 
     st.subheader("Choose your Reward")
     period_cols = st.columns([1, 4])
